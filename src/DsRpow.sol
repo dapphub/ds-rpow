@@ -9,6 +9,8 @@ contract DsRpow {
      */
     function rpow(uint x, uint n, uint base) public pure returns (uint z) {
         assembly {
+            if and(eq(x, 0), eq(n, 0)) { fail() }
+
             let half := div(base, 2) // Used for rounding.
 
             for { z := base } n { } {

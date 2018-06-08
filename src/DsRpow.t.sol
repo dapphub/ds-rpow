@@ -18,4 +18,8 @@ contract DsRpowTest is DSTest {
         assertEq(rpow.rpow(10 * base, 4, base), 10000 * base);
         assertEq(rpow.rpow(3 * base, 13, base), 1594323 * base);
     }
+
+    function testFail_exp0_0() public {
+        rpow.rpow(0, 0, 10**18);
+    }
 }
