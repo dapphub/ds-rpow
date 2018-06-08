@@ -11,11 +11,8 @@ contract DsRpowTest is DSTest {
         rpow = new DsRpow();
     }
 
-    function testFail_basic_sanity() public {
-        assertTrue(false);
-    }
-
     function test_basic_sanity() public {
-        assertTrue(true);
+        // very test, much correctness
+        assertEq(rpow.rpow(10 * (10**27), 3), 1000 * (10**27));
     }
 }
