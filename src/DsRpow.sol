@@ -1,44 +1,39 @@
 pragma solidity ^0.4.21;
 
 contract DsRpow {
-  function rpow(int x, uint n) public pure returns (int z) {
-    assembly {
-      function fail() { revert(0, 0) }
 
-      let min  := exp(2, 255)
-      let one  := exp(10, 27)
-      let half := div(one, 2)
+    /*
+     * Fixed-point exponentiation by squaring with fixed-point base as parameter.
+     *
+     * Overflow-safe multiplication and addition are inlined as an optimization.
+     */
+    function rpow(uint x, uint n, uint base) public pure returns (uint z) {
+        assembly {
+            let half := div(base, 2) // Used for rounding.
 
-      for { z := exp(10, 27) }
-          iszero(iszero(n))
-          { }
-        {
-          if mod(n, 2)
-            {
-              // [[ z := rmul(z, x) ]]
-              let tmp1 := mul(z, x)
-              if iszero(and(or(iszero(slt(x, 0)), sgt(min, z)),
-                            or(iszero(x), eq(sdiv(tmp1, x), z))))
-                { fail() }
-              let tmp2 := add(tmp1, half)
-              if sgt(0, and(xor(tmp2, tmp1), xor(tmp2, half)))
-                { fail() }
-              z := sdiv(tmp2, one)
+            for { z := base } n { } {
+                if mod(n, 2) {
+                    /*
+                     * Set z := z * x, with rounding, reverting on overflow.
+                     */
+                    let zx := mul(z, x)
+                    if iszero(or(iszero(x), eq(div(zx, x), z)))     { fail() }
+                    let zxRound := add(zx, half) if lt(zxRound, zx) { fail() }
+                    z := div(zxRound, base)
+                }
+                n := div(n, 2)
+                if gt(n, 0) {
+                    /*
+                     * Set x := x * x, with rounding, reverting on overflow.
+                     */
+                    let xx := mul(x, x)
+                    if iszero(or(iszero(x), eq(div(xx, x), x)))     { fail() }
+                    let xxRound := add(xx, half) if lt(xxRound, xx) { fail() }
+                    x := div(xxRound, base)
+                }
             }
-          n := div(n, 2)
-          if gt(n, 0)
-            {
-              // [[ x := rmul(x, x) ]]
-              let tmp1 := mul(x, x)
-              if iszero(and(or(iszero(slt(x, 0)), sgt(min, x)),
-                            or(iszero(x), eq(sdiv(tmp1, x), x))))
-                { fail() }
-              let tmp2 := add(tmp1, half)
-              if sgt(0, and(xor(tmp2, tmp1), xor(tmp2, half)))
-                { fail() }
-              x := sdiv(tmp2, one)
-            }
+
+            function fail() { revert(0, 0) }
         }
     }
-  }
 }

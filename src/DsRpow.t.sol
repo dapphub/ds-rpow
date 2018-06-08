@@ -13,6 +13,9 @@ contract DsRpowTest is DSTest {
 
     function test_basic_sanity() public {
         // very test, much correctness
-        assertEq(rpow.rpow(10 * (10**27), 3), 1000 * (10**27));
+        uint base = 10**27;
+        assertEq(rpow.rpow(10 * base, 3, base), 1000 * base);
+        assertEq(rpow.rpow(10 * base, 4, base), 10000 * base);
+        assertEq(rpow.rpow(3 * base, 13, base), 1594323 * base);
     }
 }
