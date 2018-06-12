@@ -1,5 +1,4 @@
 pragma solidity ^0.4.21;
-
 contract DsRpow {
 
     /*
@@ -7,37 +6,29 @@ contract DsRpow {
      *
      * Overflow-safe multiplication and addition are inlined as an optimization.
      */
+
     function rpow(uint x, uint n, uint base) public pure returns (uint z) {
         assembly {
-            if and(eq(x, 0), eq(n, 0)) { fail() }
-            switch x case 0 { z := 0 }
-            default {
-                let half := div(base, 2) // Used for rounding.
-
-                for { z := base } n { } {
-                    if mod(n, 2) {
-                        /*
-                         * Set z := z * x, with rounding, reverting on overflow.
-                         */
-                        let zx := mul(z, x)
-                        if iszero(eq(div(zx, x), z)) { fail() }
-                        let zxRound := add(zx, half) if lt(zxRound, zx) { fail() }
-                        z := div(zxRound, base)
-                    }
-                    n := div(n, 2)
-                    if gt(n, 0) {
-                        /*
-                         * Set x := x * x, with rounding, reverting on overflow.
-                         */
-                        let xx := mul(x, x)
-                        if iszero(eq(div(xx, x), x)) { fail() }
-                        let xxRound := add(xx, half) if lt(xxRound, xx) { fail() }
-                        x := div(xxRound, base)
-                    }
+	  switch x case 0 {z := 0}
+	  default {
+             switch eq(mod(n, 2), 0)
+             case 0 { z := base }
+             default { z := x }
+	     let half := div(base, 2) // Used for rounding.
+                for { n := div(n, 2) } n { n := div(n,2) } {
+	           x := rmul(x, x, base, half)
+	           if mod(n,2) {
+		      z := rmul(z, x, base, half)
+                   }
                 }
-            }
-
-            function fail() { revert(0, 0) }
+	     function rmul(_x, _y, _base, _half) -> xy {
+	        xy := mul(_x, _y)
+	        if and(_y, iszero(eq(div(xy, _y), _x))) { fail() }
+	        let xyRound := add(xy, _half) if lt(xyRound, xy) { fail() }
+	        xy := div(xyRound, _base)
+	     }
+	     function fail() { revert(0, 0) }
+          }
         }
     }
 }
