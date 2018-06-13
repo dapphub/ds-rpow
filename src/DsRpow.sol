@@ -11,7 +11,7 @@ contract DsRpow {
         assembly {
 	  switch x case 0 {z := 0}
 	  default {
-             switch eq(mod(n, 2), 0)
+	    switch mod(n, 2)
              case 0 { z := base }
              default { z := x }
 	     let half := div(base, 2) // Used for rounding.
