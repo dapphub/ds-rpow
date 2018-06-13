@@ -9,7 +9,7 @@ contract DsRpow {
 
     function rpow(uint x, uint n, uint base) public pure returns (uint z) {
         assembly {
-	  switch x case 0 {z := 0}
+	  switch x case 0 {switch n case 0 {z := base} default {z := 0}}
 	  default {
 	    switch mod(n, 2)
              case 0 { z := base }
