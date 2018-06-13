@@ -16,18 +16,17 @@ contract DsRpow {
              default { z := x }
 	     let half := div(base, 2) // Used for rounding.
                 for { n := div(n, 2) } n { n := div(n,2) } {
-	           x := rmul(x, x, base, half)
+	        let xx := mul(x, x)
+                if iszero(eq(div(xx, x), x)) { revert(0,0) }
+	        let xxRound := add(xx, half) if lt(xxRound, xx) { revert(0,0) }
+	        x := div(xxRound, base)
 	           if mod(n,2) {
-		      z := rmul(z, x, base, half)
+            	       let zx := mul(z, x)
+	               if and(iszero(eq(x,0)), iszero(eq(div(zx, x), z))) { revert(0,0) }
+	               let zxRound := add(zx, half) if lt(zxRound, zx) { revert(0,0) }
+		       z := div(zxRound, base)
                    }
                 }
-	     function rmul(_x, _y, _base, _half) -> xy {
-	        xy := mul(_x, _y)
-	        if and(_y, iszero(eq(div(xy, _y), _x))) { fail() }
-	        let xyRound := add(xy, _half) if lt(xyRound, xy) { fail() }
-	        xy := div(xyRound, _base)
-	     }
-	     function fail() { revert(0, 0) }
           }
         }
     }
