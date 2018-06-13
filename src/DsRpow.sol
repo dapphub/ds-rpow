@@ -22,7 +22,7 @@ contract DsRpow {
 	        x := div(xxRound, base)
 	           if mod(n,2) {
             	       let zx := mul(z, x)
-	               if and(iszero(eq(x,0)), iszero(eq(div(zx, x), z))) { revert(0,0) }
+	               if and(iszero(iszero(x)), iszero(eq(div(zx, x), z))) { revert(0,0) }
 	               let zxRound := add(zx, half) if lt(zxRound, zx) { revert(0,0) }
 		       z := div(zxRound, base)
                    }

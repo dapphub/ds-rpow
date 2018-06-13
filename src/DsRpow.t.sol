@@ -3,12 +3,15 @@ pragma solidity ^0.4.21;
 import "ds-test/test.sol";
 
 import "./DsRpow.sol";
+import "./math.sol";
 
 contract DsRpowTest is DSTest {
   DsRpow rpow;
+  DSMath math;
 
   function setUp() public {
     rpow = new DsRpow();
+    math = new DSMath();
   }
 
   function test_basic_sanity() public {
@@ -31,4 +34,13 @@ contract DsRpowTest is DSTest {
       }
     }
   }
+  function test_gas_opt_oldDsPow() public {
+    uint base = 10**27;
+    for (uint i = 0; i<10; i++) {
+      for (uint j = 0; j<10; j++) {
+	assertEq(math.rpow(i * base, j), i **j * base);
+      }
+    }
+  }
+
 }
